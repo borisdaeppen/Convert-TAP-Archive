@@ -35,9 +35,9 @@ sub convert_from_taparchive {
 
     # Now we do a lot of magic to convert this stuff...
 
-    my $harness   = TAP::Harness->new({ formatter => $formatter }); 
+    my $harness = TAP::Harness->new({ formatter => $formatter }); 
 
-    $formatter->verbose(0);
+    $formatter->really_quiet(1);
     $formatter->prepare;
 
     my $session;
@@ -49,8 +49,7 @@ sub convert_from_taparchive {
             },  
         },  
         made_parser_callback => sub {
-                # TODO: this code here print to STDOUT, this is baaaaaaaad
-                $session = $formatter->open_test( $_[1], $_[0] );
+            $session = $formatter->open_test( $_[1], $_[0] );
         }   
     });
 
