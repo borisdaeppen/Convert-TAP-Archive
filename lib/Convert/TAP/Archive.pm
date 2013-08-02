@@ -19,6 +19,7 @@ sub convert_from_taparchive {
     # Input Arguments
     my $archive_absolutepath       = shift;
     my $output_formatter_classname = shift || 'TAP::Formatter::HTML';
+    my $force_inline               = shift || 0; # boolean
 
     # This is the complicate but flexible version to:
     #   use TAP::Formatter::HTML;
@@ -32,6 +33,12 @@ sub convert_from_taparchive {
     die "Problems with formatter $output_formatter_classname"
       . " at $require_name: $@"
         if $@;
+
+    # if set, include all CSS and JS in HTML file
+    if ($force_inline) {
+        $formatter->force_inline_css(1);
+        $formatter->force_inline_js (1);
+    }
 
     # Now we do a lot of magic to convert this stuff...
 
@@ -94,6 +101,8 @@ The method will return the content of the TAP archive, parsed according to the f
                 '/must/be/the/complete/path/to/test.tar.gz',
                 'TAP::Formatter::HTML',
             );
+
+You can give any optional true value as a third argument and it will pack all Javascript inside the HTML instead of linking to to files from L<TAP::Formatter::HTML>.
 
 =head1 BUGS AND LIMITATIONS
 
