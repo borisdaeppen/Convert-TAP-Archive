@@ -16,26 +16,32 @@ our @EXPORT = qw(convert_from_taparchive);
 # one and only subroutine of this module
 sub convert_from_taparchive {
 
-    # Input Arguments
-    my $archive_absolutepath       = shift;
-    my $output_formatter_classname = shift || 'TAP::Formatter::HTML';
-    my $force_inline               = shift || 0; # boolean
+    my %args = @_;
+
+    # Input Arguments: archive, formatter, force_inline
+    # Set default values:
+    die 'no archive specified'
+        unless (exists $args{archive});
+    $args{formatter} = 'TAP::Formatter::HTML'
+        unless (exists $args{formatter});
+    $args{force_inline} = 0
+        unless (exists $args{force_inline});
 
     # This is the complicate but flexible version to:
     #   use TAP::Formatter::HTML;
     #   my $formatter = TAP::Formatter::HTML->new;
     my $formatter;
-    (my $require_name = $output_formatter_classname . ".pm") =~ s{::}{/}g;
+    (my $require_name = $args{formatter} . ".pm") =~ s{::}{/}g;
     eval {
         require $require_name;
-        $formatter = $output_formatter_classname->new();
+        $formatter = $args{formatter}->new();
     };  
-    die "Problems with formatter $output_formatter_classname"
+    die "Problems with formatter $args{formatter}"
       . " at $require_name: $@"
         if $@;
 
     # if set, include all CSS and JS in HTML file
-    if ($force_inline) {
+    if ($args{force_inline}) {
         $formatter->force_inline_css(1);
         $formatter->force_inline_js (1);
     }
@@ -49,7 +55,7 @@ sub convert_from_taparchive {
 
     my $session;
     my $aggregator = TAP::Harness::Archive->aggregator_from_archive({ 
-        archive          => $archive_absolutepath,
+        archive          => $args{archive},
         parser_callbacks => {
             ALL => sub {
                 $session->result( $_[0] );
@@ -83,26 +89,28 @@ This modul can be of help for you if you have TAP archives (e.g. created with C<
  use Convert::TAP::Archive qw(convert_from_taparchive);
 
  my $html = convert_from_taparchive(
-                '/must/be/the/complete/path/to/test.tar.gz',
-                'TAP::Formatter::HTML',
+                archive   => '/must/be/the/complete/path/to/test.tar.gz',
+                formatter => 'TAP::Formatter::HTML',
             );
 
 =head1 EXPORTED METHODS
 
 =head2 convert_from_taparchive
 
-The method takes two arguments.
-The first is required.
-It is the B<full> path to your TAP archive.
-The second defaults to C<TAP::Formatter::HTML>, but you can give any other formatter.
+The method takes three arguments.
+Only C<archive> is required.
+It takes the B<full> path to your TAP archive.
+The C<formatter> defaults to C<TAP::Formatter::HTML>, but you can give any other formatter.
 The method will return the content of the TAP archive, parsed according to the formatter you have specified.
 
  my $html = convert_from_taparchive(
-                '/must/be/the/complete/path/to/test.tar.gz',
-                'TAP::Formatter::HTML',
+                archive      => '/must/be/the/complete/path/to/test.tar.gz',
+                formatter    =>'TAP::Formatter::HTML',
+                force_inline => 1,
             );
 
-You can give any optional true value as a third argument and it will pack all Javascript inside the HTML instead of linking to to files from L<TAP::Formatter::HTML>.
+You can give any optional true value to C<force_inline> and it will pack all Javascript and CSS inside the HTML instead of linking to to files from L<TAP::Formatter::HTML>.
+This defaults to zero, meaning do not inline.
 
 =head1 BUGS AND LIMITATIONS
 
