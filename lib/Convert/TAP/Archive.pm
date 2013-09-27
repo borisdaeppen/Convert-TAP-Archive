@@ -80,6 +80,11 @@ __END__
 
 =encoding utf8
 
+=head1 IMPORTANT NOTE
+
+B<THIS MODULE IS DEPRECATED!>
+Please see L<Archive::TAP::Convert> instead.
+
 =head1 ABOUT
 
 This modul can be of help for you if you have TAP archives (e.g. created with C<prove -a> and now you wish to have the content of this archives in a special format like HTML or JUnit (or whatever format).
@@ -119,6 +124,11 @@ No known issues.
 =head1 SEE ALSO
 
 =over
+
+=item *
+
+This module is no longer maintained!
+Please see L<Archive::TAP::Convert> for the same funcionality.
 
 =item *
 
